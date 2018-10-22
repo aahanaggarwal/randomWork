@@ -2,6 +2,7 @@ import pandas as pd
 import glob
 from pprint import pprint
 import matplotlib.pyplot as plt
+from datetime import datetime, timedelta
 
 # path = "C:\\Users\\aahan\\Desktop\\randomWork\\takeout-20181022T060548Z-001\\Takeout\\Google Play Music\\Tracks"
 # filenames = glob.glob(path+ "/*.csv")
@@ -16,11 +17,20 @@ import matplotlib.pyplot as plt
 # frame = pd.concat(list)
 
 frame = pd.read_csv("allsongs.csv")
-
 artistsCount = {}
+totalListenTime = 0
+
+# counts total listen time
+# for index, song in frame.iterrows():
+#     totalListenTime += ( (song['Duration (ms)']/1000) * song['Play Count'] )
+
+# print(totalListenTime/( 60 * 60 * 24))
+
+# d = timedelta(seconds = int(totalListenTime))
+# print(str(d))
 
 for index, song in frame.iterrows():
-    artists = str(song['Artist']).split(",")
+    artists = str(song['Album']).split(",")
 
     for i in range(len(artists)): # fix inconsistencies within each artist
 
@@ -36,9 +46,9 @@ for index, song in frame.iterrows():
     
     for artist in artists:  # count artists
         if artist not in artistsCount: # set count for each artist
-            artistsCount[artist] = 1
+            artistsCount[artist] = song['Play Count']
         else:
-            artistsCount[artist] = artistsCount[artist] + song['Play Count']
+            artistsCount[artist] = artistsCount[artist] + (song['Play Count'])
 
 artists = list(artistsCount.keys())
 values = list(artistsCount.values())
@@ -47,8 +57,8 @@ df = pd.DataFrame({'artists':artists, 'values':values})
 df = df.sort_values(by=['values'], ascending=False)
 df = df.head(10) # get top ten artists
 
-plt.xlabel("Artists", fontSize=20)
-plt.ylabel("Count", fontSize=20)
-plt.xticks(rotation=90, fontSize=12)
-plt.bar(df['artists'], df['values'])
-plt.savefig('Top Ten Artists GPM.png', bbox_inches='tight')
+plt.ylabel("Albums", fontSize=15)
+plt.xlabel("Listen Count", fontSize=15)
+plt.title("Top 10 Albums")
+plt.barh(df['artists'], df['values'])
+plt.savefig('Top Ten Albums GPM.png', bbox_inches='tight', dpi=300)
